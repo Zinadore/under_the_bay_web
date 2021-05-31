@@ -1,8 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Under_the_Bay.API.V1.Contracts.Requests;
+using Under_the_Bay.API.V1.Contracts.Responses;
 using Under_the_Bay.Data.Models;
+using Under_the_Bay.Data.Repositories;
 
 namespace Under_the_Bay.API.V1.Controllers
 {
@@ -11,32 +16,40 @@ namespace Under_the_Bay.API.V1.Controllers
     [Route("api/v{version:apiVersion}/[controller]")]
     public class StationsController : ControllerBase
     {
-        private static List<Station> _stations = new List<Station>{
-            new Station  { Id = Guid.Parse("46820eb0-5d7e-45b9-900b-0dbc92237f09"), StationId = "XIE7136", Layer = "S", Name = "AquariumEast" },
-            new Station  { Id = Guid.Parse("a461b5a1-b587-48d9-aa9c-b31b21cc197d"), StationId = "XIE7136", Layer = "B", Name = "AquariumEastBottom" }
-        };
-        public StationsController()
+        private readonly IStationsRepository _repo;
+        private readonly IMapper _mapper;
+        public StationsController(IStationsRepository repo, IMapper mapper)
         {
+            _repo = repo;
+            _mapper = mapper;
         }
         
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<Station>), 200)]
-        public ActionResult<List<string>> GetAll()
+        [ProducesResponseType(typeof(IEnumerable<StationResponse>), 200)]
+        public async Task<ActionResult> GetAll()
         {
-            return Ok(_stations);
+            var stations = await _repo.GetAll(); 
+            return Ok(_mapper.Map<List<StationResponse>>(stations));
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Station> Get(Guid id)
+        [ProducesResponseType(typeof(StationResponse), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult> Get([FromRoute][FromQuery]StationRequest dto)
         {
-            var station = _stations.FirstOrDefault(s => s.Id == id);
+            if (!dto.EndDate.HasValue)
+            {
+                dto.EndDate = DateTimeOffset.Now;
+            }
+            
+            var station = await _repo.GetById(dto.Id);
 
             if (station == null)
             {
                 return NotFound();
             }
 
-            return Ok(station);
+            return Ok(_mapper.Map<StationResponse>(station));
         }
     }
 }
