@@ -4,11 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -16,6 +18,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using Under_the_Bay.API.Installers;
+using Under_the_Bay.Data;
 
 namespace Under_the_Bay.API
 {
@@ -42,26 +46,19 @@ namespace Under_the_Bay.API
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddControllers();
-            
-            services.AddApiVersioning(options =>
-            {
-                options.ReportApiVersions = true;
-            });
+            services.AddControllers()
+                .AddFluentValidation(c => c.RegisterValidatorsFromAssemblyContaining<Startup>());
 
-            services.AddVersionedApiExplorer(options =>
-            {
-                options.GroupNameFormat = "'v'VVV";
-                options.SubstituteApiVersionInUrl = true;
-            });
+            var installers = typeof(Startup).Assembly.ExportedTypes
+                .Where(x => typeof(IInstaller).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract)
+                .Select(Activator.CreateInstance).ToList();
             
-            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
-            
-            services.AddSwaggerGen(c =>
+            foreach (IInstaller installer in installers)
             {
-                c.OperationFilter<SwaggerDefaultValues>();
-                // c.IncludeXmlComments(XmlCommentsFilePath);
-            });
+                installer.Install(services, Configuration);
+            }
+            
+            services.AddAutoMapper(typeof(Startup));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
