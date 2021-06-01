@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Under_the_Bay.Data;
 
 namespace Under_the_Bay.API.Migrations
 {
     [DbContext(typeof(UtbContext))]
-    partial class UtbContextModelSnapshot : ModelSnapshot
+    [Migration("20210531231554_Add sample domain model")]
+    partial class Addsampledomainmodel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -45,9 +47,6 @@ namespace Under_the_Bay.API.Migrations
 
                     b.Property<DateTimeOffset>("SampleDate")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<float>("SampleDepth")
-                        .HasColumnType("real");
 
                     b.Property<Guid>("StationId")
                         .HasColumnType("uuid");

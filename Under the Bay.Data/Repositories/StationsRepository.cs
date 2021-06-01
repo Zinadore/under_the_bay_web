@@ -23,13 +23,13 @@ namespace Under_the_Bay.Data.Repositories
         public async Task<Station> GetById(Guid id, bool includeMeasurements, DateTimeOffset? startTime,
             DateTimeOffset? endTime)
         {
-            var query = _context.Stations.AsQueryable();
+            var query = _context.Stations.Where(s => s.Id == id);
 
             if (includeMeasurements)
             {
-                // query = query.Include(x =>)
+                query = query.Include(x => x.Samples.Where(s => s.SampleDate >= startTime && s.SampleDate <= endTime));
             }
-
+            
             return await query.SingleOrDefaultAsync();
         }
 

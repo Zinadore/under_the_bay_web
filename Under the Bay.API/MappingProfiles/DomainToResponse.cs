@@ -8,7 +8,10 @@ namespace Under_the_Bay.API.MappingProfiles
     {
         public DomainToResponse()
         {
-            CreateMap<Station, StationResponse>();
+            CreateMap<Station, StationResponse>()
+                .ForMember(response => response.Samples, opt => opt.MapFrom(s => s.Samples));
+
+            CreateMap<Sample, SampleResponse>();
         }
     }
 }

@@ -8,10 +8,10 @@ namespace Under_the_Bay.API.V1.Validators
     {
         public StationRequestValidator()
         {
-            // RuleFor(x => x.StartDate)
-            //     .NotNull()
-            //     .LessThanOrEqualTo(DateTimeOffset.Now)
-            //     .When(x => x.IncludeMeasurements);
+            RuleFor(x => x.StartDate)
+                .NotNull()
+                .LessThanOrEqualTo(DateTimeOffset.Now)
+                .When(x => x.IncludeMeasurements);
             
             RuleFor(x => x.EndDate)
                 .LessThanOrEqualTo(DateTimeOffset.Now)

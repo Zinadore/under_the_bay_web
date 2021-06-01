@@ -37,12 +37,12 @@ namespace Under_the_Bay.API.V1.Controllers
         [ProducesResponseType(404)]
         public async Task<ActionResult> Get([FromRoute][FromQuery]StationRequest dto)
         {
-            if (!dto.EndDate.HasValue)
+            if (dto.IncludeMeasurements && !dto.EndDate.HasValue)
             {
                 dto.EndDate = DateTimeOffset.Now;
             }
             
-            var station = await _repo.GetById(dto.Id);
+            var station = await _repo.GetById(dto.Id, dto.IncludeMeasurements, dto.StartDate, dto.EndDate);
 
             if (station == null)
             {

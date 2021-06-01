@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Under_the_Bay.API.V1.Contracts.Responses
 {
@@ -6,6 +7,8 @@ namespace Under_the_Bay.API.V1.Contracts.Responses
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
-        // public DateTimeOffset LastUpdate { get; set; }
+        public DateTimeOffset LastUpdate { get; set; }
+
+        public List<SampleResponse> Samples { get; set; }
     }
 }
