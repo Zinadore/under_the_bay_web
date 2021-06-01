@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using NodaTime;
 
 namespace Under_the_Bay.API.V1.Contracts.Responses
 {
@@ -7,6 +8,9 @@ namespace Under_the_Bay.API.V1.Contracts.Responses
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
+        /// <summary>
+        /// In ISO-8061 format
+        /// </summary>
         public DateTimeOffset LastUpdate { get; set; }
 
         public List<SampleResponse> Samples { get; set; }

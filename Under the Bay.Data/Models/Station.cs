@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using NodaTime;
 
 namespace Under_the_Bay.Data.Models
 {
@@ -16,7 +17,7 @@ namespace Under_the_Bay.Data.Models
         [Required]
         public string Layer { get; set; }
         [Required] 
-        public DateTimeOffset LastUpdate { get; set; }
+        public Instant LastUpdate { get; set; }
         
         public virtual IEnumerable<Sample> Samples { get; set; }
     }

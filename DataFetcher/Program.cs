@@ -26,7 +26,10 @@ namespace DataFetcher
 
                     services.AddDbContext<UtbContext>(opts =>
                     {
-                        opts.UseNpgsql(connectionString);
+                        opts.UseNpgsql(connectionString, b =>
+                        {
+                            b.UseNodaTime();
+                        });
                     });
                     
                     services.AddTransient<DataFetcherApplication>();

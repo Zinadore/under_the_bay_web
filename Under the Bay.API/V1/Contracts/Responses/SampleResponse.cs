@@ -1,9 +1,13 @@
 using System;
+using NodaTime;
 
 namespace Under_the_Bay.API.V1.Contracts.Responses
 {
     public class SampleResponse
     {
+        /// <summary>
+        /// In ISO-8061 format
+        /// </summary>
         public DateTimeOffset SampleDate { get; set; }
         public float WaterTemperature { get; set; }
         public float DissolvedOxygen { get; set; }

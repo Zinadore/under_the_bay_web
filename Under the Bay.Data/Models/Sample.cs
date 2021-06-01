@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using NodaTime;
 
 namespace Under_the_Bay.Data.Models
 {
@@ -7,7 +8,7 @@ namespace Under_the_Bay.Data.Models
     {
         public Guid Id { get; set; }
         [Required]
-        public DateTimeOffset SampleDate { get; set; }
+        public Instant SampleDate { get; set; }
         public float SampleDepth { get; set; }
         public float WaterTemperature { get; set; }
         public float DissolvedOxygen { get; set; }

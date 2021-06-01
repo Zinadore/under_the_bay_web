@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using NodaTime;
 using Under_the_Bay.Data.Models;
 
 namespace Under_the_Bay.Data.Repositories
@@ -25,10 +26,12 @@ namespace Under_the_Bay.Data.Repositories
         {
             var query = _context.Stations.Where(s => s.Id == id);
 
-            if (includeMeasurements)
+            if (includeMeasurements && startTime.HasValue && endTime.HasValue)
             {
+                var a = Instant.FromDateTimeOffset(startTime.Value);
+                var b = Instant.FromDateTimeOffset(endTime.Value);
                 query = query.Include(x => x.Samples
-                    .Where(s => s.SampleDate >= startTime && s.SampleDate <= endTime)
+                    .Where(s => s.SampleDate >= a && s.SampleDate <= b)
                     .OrderByDescending(s=> s.SampleDate)
                 );
             }

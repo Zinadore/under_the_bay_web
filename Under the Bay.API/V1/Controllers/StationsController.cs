@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using NodaTime;
 using Under_the_Bay.API.V1.Contracts.Requests;
 using Under_the_Bay.API.V1.Contracts.Responses;
 using Under_the_Bay.Data.Models;
@@ -25,6 +26,15 @@ namespace Under_the_Bay.API.V1.Controllers
             _mapper = mapper;
         }
         
+        /// <summary>
+        /// Retrieves all available stations
+        /// </summary>
+        /// <remarks>
+        /// This will fetch all available stations along with some metadata. Some stations can be more up-to-date
+        /// than others, as that depends on external data source we have no control over. You can use the ids provided
+        /// from this endpoint to make requests for samples from that station.
+        /// </remarks>
+        /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<StationResponse>), 200)]
         public async Task<ActionResult> GetAll()
@@ -32,7 +42,15 @@ namespace Under_the_Bay.API.V1.Controllers
             var stations = await _repo.GetAll(); 
             return Ok(_mapper.Map<List<StationResponse>>(stations));
         }
-
+        
+        /// <summary>
+        /// Fetches a specific station denoted by id
+        /// </summary>
+        /// <remarks>
+        /// You can use the query string parameters to include samples in the specified data range.
+        /// </remarks>
+        /// <param name="dto"></param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(StationResponse), 200)]
         [ProducesResponseType(404)]

@@ -9,6 +9,8 @@ using CsvHelper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using NodaTime;
+using NodaTime.Text;
 using Under_the_Bay.Data;
 using Under_the_Bay.Data.Models;
 
@@ -31,9 +33,11 @@ namespace DataFetcher
         private readonly UtbContext _context;
         private readonly IHostApplicationLifetime _lifetime;
         private readonly ILogger<DataFetcherApplication> _logger;
-        private IConfiguration Configuration { get; }
         
-        public DataFetcherApplication(IConfiguration configuration, UtbContext context, IHostApplicationLifetime lifetime, ILogger<DataFetcherApplication> logger)
+        private IConfiguration Configuration { get; }
+
+        public DataFetcherApplication(IConfiguration configuration, UtbContext context,
+            IHostApplicationLifetime lifetime, ILogger<DataFetcherApplication> logger)
         {
             _context = context;
             _lifetime = lifetime;
@@ -80,13 +84,17 @@ namespace DataFetcher
 
             string urlFormat = Configuration.GetValue<string>("UTB:RequestURI");
             
+            LocalDatePattern datePattern = LocalDatePattern.CreateWithCurrentCulture("MM/dd/yyyy");
+            LocalTimePattern timePattern = LocalTimePattern.CreateWithCurrentCulture("hh:mm:ss");
+            DateTimeZone timeZone = DateTimeZoneProviders.Tzdb["America/New_York"];
+            
             // The data we get have the time set to EST. We always use this timezone, just in case
             // we get located to somewhere else.
             TimeZoneInfo tz = TimeZoneInfo.FindSystemTimeZoneById("America/New_York");
             foreach (var station in Stations)
             {
                 DateTimeOffset now = DateTimeOffset.Now;
-                var startString = station.LastUpdate.ToString("yyyy/MM/dd");
+                var startString = station.LastUpdate.InZone(timeZone).ToString("yyyy/MM/dd", CultureInfo.CurrentCulture);
                 var endString = now.ToString("yyyy/MM/dd");
 
                 string url = string.Format(urlFormat, station.ThreeLetterId, startString, endString);
@@ -95,7 +103,9 @@ namespace DataFetcher
                 
                 _logger.Log(LogLevel.Information, $"Processing file: {csvFile.FullName}...");
                 
-                DateTimeOffset newestTime = station.LastUpdate;
+                Instant newestTime = station.LastUpdate;
+                
+                
                 
                 using (var reader = new StreamReader(csvFile.FullName))
                 using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
@@ -104,18 +114,31 @@ namespace DataFetcher
 
                     foreach (var record in records)
                     {
-                        var dt = DateTime.Parse($"{record.SampleDate} {record.SampleTime}", CultureInfo.InvariantCulture);
-                        var dto = new DateTimeOffset(dt, tz.GetUtcOffset(dt));
 
-                        if (dto <= station.LastUpdate)
+                        ParseResult<LocalDate> dateResult = datePattern.Parse(record.SampleDate);
+                        ParseResult<LocalTime> timeResult = timePattern.Parse(record.SampleTime);
+
+                        if (!dateResult.Success || !timeResult.Success)
+                        {
+                            _logger.LogError($"Failed to parse date {record.SampleDate} {record.SampleTime}");
+                            continue;
+                        }
+
+                        var day = dateResult.Value;
+                        var time = timeResult.Value;
+
+                        var dateTime = day.At(time).InZoneLeniently(timeZone);
+                        var instant = dateTime.ToInstant();
+
+                        if (instant <= station.LastUpdate)
                             continue;
 
-                        if (dto >= newestTime)
-                            newestTime = dto;
+                        if (instant >= newestTime)
+                            newestTime = instant;
                         
                         Sample sample = new Sample();
 
-                        sample.SampleDate = dto;
+                        sample.SampleDate = instant;
                         sample.SampleDepth = record.SampleDepth_m is > -200.0f ? record.SampleDepth_m.Value : -1.0f;
                         sample.WaterTemperature = record.Temp_C is > -200.0f ? record.Temp_C.Value : -1.0f;
                         sample.DissolvedOxygen = record.DO_mgL is > -200.0f ? record.DO_mgL.Value : -1.0f;

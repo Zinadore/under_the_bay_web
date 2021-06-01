@@ -1,5 +1,6 @@
 using System;
 using FluentValidation;
+using NodaTime;
 using Under_the_Bay.API.V1.Contracts.Requests;
 
 namespace Under_the_Bay.API.V1.Validators
