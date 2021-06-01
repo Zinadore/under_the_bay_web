@@ -5,12 +5,14 @@ WORKDIR /app
 COPY *.sln .
 COPY ["Under the Bay.API/*.csproj", "./Under the Bay.API/"]
 COPY ["Under the Bay.Data/*.csproj", "./Under the Bay.Data/"]
+COPY ["DataFetcher/*.csproj", "./DataFetcher/"]
 RUN dotnet restore
 
 COPY ["Under the Bay.API/", "./Under the Bay.API/"]
 COPY ["Under the Bay.Data/", "./Under the Bay.Data/"]
+COPY ["DataFetcher/", "./DataFetcher/"]
 
-RUN dotnet publish -c Release -o out
+RUN ["dotnet", "publish", "./Under the Bay.API/Under the Bay.API.csproj", "-c", "Release", "-o", "out"]
 
 # Run stage
 FROM mcr.microsoft.com/dotnet/aspnet:5.0

@@ -1,3 +1,4 @@
+using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +13,13 @@ namespace Under_the_Bay.API.Installers
         {
             services.AddDbContext<UtbContext>(options =>
             {
-                options.UseNpgsql(configuration.GetConnectionString("PGSQL_DEV"), b =>
+                string connectionString = configuration.GetConnectionString("PGSQL_DEV");
+                if (string.IsNullOrEmpty(connectionString))
+                {
+                    connectionString = configuration["UTB_CONNECTION_STRING"];
+                }
+                
+                options.UseNpgsql(connectionString, b =>
                 {
                     b.MigrationsAssembly("Under the Bay.API");
                 });

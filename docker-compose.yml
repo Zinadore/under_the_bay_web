@@ -11,6 +11,7 @@ services:
       ASPNETCORE_URLS: "https://+;http://+"
       ASPNETCORE_HTTPS_PORT: "8081" 
       ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__PGSQL_DEV: "Host=utb_postgres;Port=5432;Database=${UTB_POSTGRES_DB};Username=${UTB_POSTGRES_USER};Password=${UTB_POSTGRES_PASSWORD}"
     volumes: 
       - ~/.microsoft/usersecrets:/root/.microsoft/usersecrets
       - ~/.aspnet/https:/root/.aspnet/https
