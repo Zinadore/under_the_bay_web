@@ -10,6 +10,10 @@ namespace Under_the_Bay.API.V1.Contracts.Requests
         public Guid Id { get; set; }
         [FromQuery(Name = "include_measurements")]
         public bool IncludeMeasurements { get; set; }
+        
+        /// <summary>
+        /// Date should be in UTC format
+        /// </summary>
         [FromQuery(Name = "start_date")]
         public DateTimeOffset? StartDate { get; set; }
         [FromQuery(Name = "end_date")]

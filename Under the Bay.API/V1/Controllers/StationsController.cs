@@ -13,6 +13,7 @@ namespace Under_the_Bay.API.V1.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
+    [Produces("application/json")]
     [Route("api/v{version:apiVersion}/[controller]")]
     public class StationsController : ControllerBase
     {

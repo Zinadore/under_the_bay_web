@@ -25,16 +25,6 @@ namespace Under_the_Bay.API
 {
     public class Startup
     {
-        static string XmlCommentsFilePath
-        {
-            get
-            {
-                var basePath = System.AppContext.BaseDirectory;
-                var fileName = typeof( Startup ).GetTypeInfo().Assembly.GetName().Name + ".xml";
-                return Path.Combine( basePath, fileName );
-            }
-        }
-        
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -75,6 +65,7 @@ namespace Under_the_Bay.API
                 foreach(var description in provider.ApiVersionDescriptions)
                 {
                     c.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+                    c.RoutePrefix = string.Empty;
                 }
             });
             

@@ -1,4 +1,6 @@
 using System;
+using System.IO;
+using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -17,8 +19,19 @@ namespace Under_the_Bay.API.Installers
             {
                 c.OperationFilter<SwaggerDefaultValues>();
                 c.MapType<DateTimeOffset>(() => new OpenApiSchema { Type = "string", Format = "date"});
-                // c.IncludeXmlComments(XmlCommentsFilePath);
+                
+                c.IncludeXmlComments(XmlCommentsFilePath);
             });
+        }
+        
+        static string XmlCommentsFilePath
+        {
+            get
+            {
+                var basePath = System.AppContext.BaseDirectory;
+                var fileName = typeof( Startup ).GetTypeInfo().Assembly.GetName().Name + ".xml";
+                return Path.Combine( basePath, fileName );
+            }
         }
     }
 }
