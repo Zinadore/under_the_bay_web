@@ -144,7 +144,7 @@ namespace DataFetcher
                         sample.DissolvedOxygen = record.DO_mgL is > -200.0f ? record.DO_mgL.Value : -1.0f;
                         sample.DissolvedOxygenSaturation = record.DO_sat is > -200.0f ? record.DO_sat.Value : -1.0f;
                         sample.Salinity = record.Salinity_ppt is > -200.0f ? record.Salinity_ppt.Value : -1.0f;
-                        sample.PH = record.pH is > -200.0f ? record.pH.Value : -1.0f;
+                        sample.pH = record.pH is > -200.0f ? record.pH.Value : -1.0f;
                         sample.Turbidity = record.Turbidity_NTU is > -200.0f ? record.Turbidity_NTU.Value : -1.0f;
                         sample.Chlorophyll = record.ChlA_ugL is > -200.0f ? record.ChlA_ugL.Value : -1.0f;
                         sample.BlueGreenAlgae =  record.ChlA_ugL is > -200 ? record.ChlA_ugL.Value: -1.0f ;
