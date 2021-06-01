@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NodaTime;
 using Under_the_Bay.Data;
@@ -10,9 +11,10 @@ using Under_the_Bay.Data;
 namespace Under_the_Bay.API.Migrations
 {
     [DbContext(typeof(UtbContext))]
-    partial class UtbContextModelSnapshot : ModelSnapshot
+    [Migration("20210601205641_Add model validations")]
+    partial class Addmodelvalidations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
