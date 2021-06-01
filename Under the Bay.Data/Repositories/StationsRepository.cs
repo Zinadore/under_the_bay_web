@@ -27,7 +27,10 @@ namespace Under_the_Bay.Data.Repositories
 
             if (includeMeasurements)
             {
-                query = query.Include(x => x.Samples.Where(s => s.SampleDate >= startTime && s.SampleDate <= endTime));
+                query = query.Include(x => x.Samples
+                    .Where(s => s.SampleDate >= startTime && s.SampleDate <= endTime)
+                    .OrderByDescending(s=> s.SampleDate)
+                );
             }
             
             return await query.SingleOrDefaultAsync();
