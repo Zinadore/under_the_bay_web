@@ -63,6 +63,8 @@ namespace Under_the_Bay.API
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
+                c.DocumentTitle = "Under the Bay - Swagger UI";
+                
                 foreach(var description in provider.ApiVersionDescriptions)
                 {
                     c.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
