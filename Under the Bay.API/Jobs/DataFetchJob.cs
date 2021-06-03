@@ -123,24 +123,15 @@ namespace Under_the_Bay.API.Jobs
         {
             Sample sample = new Sample();
 
-            if (record.SampleDepth_m != null)
-                sample.SampleDepth = record.SampleDepth_m ?? Math.Clamp(record.SampleDepth_m.Value, 0.0f, 200.0f);
-            if (record.Temp_C != null)
-                sample.WaterTemperature = record.Temp_C ?? Math.Clamp(record.Temp_C.Value, 0.0f, 100.0f);
-            if (record.DO_mgL != null)
-                sample.DissolvedOxygen = record.DO_mgL ?? Math.Clamp(record.DO_mgL.Value, 0.0f, 21.0f);
-            if (record.DO_sat != null)
-                sample.DissolvedOxygenSaturation = record.DO_sat ?? Math.Clamp(record.DO_sat.Value, 0.0f, 1.0f);
-            if (record.Salinity_ppt != null)
-                sample.Salinity = record.Salinity_ppt ?? Math.Clamp(record.Salinity_ppt.Value, 0.0f, 32.0f);
-            if (record.pH != null)
-                sample.pH = record.pH ?? Math.Clamp(record.pH.Value, 0.0f, 14.0f);
-            if (record.Turbidity_NTU != null)
-                sample.Turbidity = record.Turbidity_NTU ?? Math.Clamp(record.Turbidity_NTU.Value, 0.0f, 100.0f);
-            if (record.ChlA_ugL != null)
-                sample.Chlorophyll = record.ChlA_ugL ?? Math.Clamp(record.ChlA_ugL.Value, 0.0f, 100.0f); 
-            if (record.ChlA_ugL != null)
-                sample.BlueGreenAlgae = record.ChlA_ugL ?? Math.Clamp(record.ChlA_ugL.Value, 0.0f, 1000.0f); 
+            sample.SampleDepth = MapProperty(record.SampleDepth_m, 0, 200);
+            sample.WaterTemperature = MapProperty(record.Temp_C, 0, 100);
+            sample.DissolvedOxygen = MapProperty(record.DO_mgL, 0, 21);
+            sample.DissolvedOxygenSaturation = MapProperty(record.DO_sat, 0.0f, 1);
+            sample.Salinity = MapProperty(record.Salinity_ppt, 0, 32);
+            record.pH = MapProperty(record.pH, 0, 14);
+            sample.Turbidity = MapProperty(record.Turbidity_NTU, 0, 100);
+            sample.Chlorophyll = MapProperty(record.ChlA_ugL, 0, 100);
+            sample.BlueGreenAlgae = MapProperty(record.BGA_RFU, 0, 1000);  
             
             return sample;
         }
@@ -173,7 +164,14 @@ namespace Under_the_Bay.API.Jobs
 
             await context.SaveChangesAsync();
         }
-
+        
+#nullable enable
+        private float MapProperty(float? source, float min, float max)
+        {
+            return source != null ? Math.Clamp(source.Value, min, max) : min;
+        }
+#nullable disable
+        
         public string Name { get; } = nameof(DataFetchJob);
     }
 }

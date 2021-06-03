@@ -42,17 +42,20 @@ namespace DataFetcher
 
             var app = provider.GetService<DataFetcherApplication>();
 
-            app?.Run();
-
+            if (app == null)
+                return;
             try
             {
+                await app.RunAsync();
                 await host.RunAsync();
             }
             catch (Exception e)
             {
-                // This throws an Operation Was Canceled exception, as we are calling StopApplication
-                // when we are done processing. No clue why.
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
             }
+            
+            return;
         }
     }
 }

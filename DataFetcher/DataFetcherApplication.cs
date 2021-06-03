@@ -5,7 +5,10 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks;
 using CsvHelper;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -34,6 +37,11 @@ namespace DataFetcher
         private readonly IHostApplicationLifetime _lifetime;
         private readonly ILogger<DataFetcherApplication> _logger;
         
+        private readonly LocalDatePattern _datePattern;
+        private readonly LocalTimePattern _timePattern;
+        private readonly DateTimeZone _timeZone;
+        
+        
         private IConfiguration Configuration { get; }
 
         public DataFetcherApplication(IConfiguration configuration, UtbContext context,
@@ -43,6 +51,10 @@ namespace DataFetcher
             _lifetime = lifetime;
             _logger = logger;
             Configuration = configuration;
+            
+            _datePattern = LocalDatePattern.CreateWithCurrentCulture("MM/dd/yyyy");
+            _timePattern = LocalTimePattern.CreateWithCurrentCulture("hh:mm:ss");
+            _timeZone = DateTimeZoneProviders.Tzdb[Configuration.GetValue<string>("UTB:Timezone")];
         }
 
         private FileInfo DownloadFile(string url, string stationName)
@@ -59,53 +71,87 @@ namespace DataFetcher
             return fileInfo;
         }
         
-        public void Run()
+        private async Task AddStations(UtbContext context)
+        {
+            foreach (var station in Stations)
+            {
+                var exists = await context.Stations.AnyAsync(s => s.ThreeLetterId == station.ThreeLetterId);
+
+                if (exists)
+                    continue;
+
+                await context.Stations.AddAsync(station);
+            }
+
+            await context.SaveChangesAsync();
+        }
+        
+        private Instant? GetInstantFromRecord(SampleRecord record)
+        {
+            ParseResult<LocalDate> dateResult = _datePattern.Parse(record.SampleDate);
+            ParseResult<LocalTime> timeResult = _timePattern.Parse(record.SampleTime);
+
+            if (!dateResult.Success || !timeResult.Success)
+                return null;
+            
+            var day = dateResult.Value;
+            var time = timeResult.Value;
+            
+            var dateTime = day.At(time).InZoneLeniently(_timeZone);
+            return dateTime.ToInstant();
+        }
+        
+#nullable enable
+        private float MapProperty(float? source, float min, float max)
+        {
+            return source != null ? Math.Clamp(source.Value, min, max) : min;
+        }
+#nullable disable
+        
+        private Sample MapSample(SampleRecord record)
+        {
+            Sample sample = new Sample();
+
+            sample.SampleDepth = MapProperty(record.SampleDepth_m, 0, 200);
+            sample.WaterTemperature = MapProperty(record.Temp_C, 0, 100);
+            sample.DissolvedOxygen = MapProperty(record.DO_mgL, 0, 21);
+            sample.DissolvedOxygenSaturation = MapProperty(record.DO_sat, 0.0f, 1);
+            sample.Salinity = MapProperty(record.Salinity_ppt, 0, 32);
+            record.pH = MapProperty(record.pH, 0, 14);
+            sample.Turbidity = MapProperty(record.Turbidity_NTU, 0, 100);
+            sample.Chlorophyll = MapProperty(record.ChlA_ugL, 0, 100);
+            sample.BlueGreenAlgae = MapProperty(record.BGA_RFU, 0, 1000); 
+            
+            return sample;
+        }
+        
+        public async Task RunAsync()
         {
             bool shouldAddStations = Configuration.GetValue<bool>("UTB:AddStations");
 
             if (shouldAddStations)
-            {
-                foreach (var station in Stations)
-                {
-                    var exists = _context.Stations.Any(s => s.ThreeLetterId == station.ThreeLetterId);
-
-                    if (exists)
-                        continue;
-
-                    _context.Stations.Add(station);
-                }
-
-                _context.SaveChanges();
-            }
-            else
-            {
-                Stations = _context.Stations.ToList();
-            }
+                await AddStations(_context);
+            
+            Stations = _context.Stations.Where(x => x.Name == "Little Monie").ToList();
+            
 
             string urlFormat = Configuration.GetValue<string>("UTB:RequestURI");
             
-            LocalDatePattern datePattern = LocalDatePattern.CreateWithCurrentCulture("MM/dd/yyyy");
-            LocalTimePattern timePattern = LocalTimePattern.CreateWithCurrentCulture("hh:mm:ss");
-            DateTimeZone timeZone = DateTimeZoneProviders.Tzdb["America/New_York"];
-            
-            // The data we get have the time set to EST. We always use this timezone, just in case
-            // we get located to somewhere else.
-            TimeZoneInfo tz = TimeZoneInfo.FindSystemTimeZoneById("America/New_York");
             foreach (var station in Stations)
             {
                 DateTimeOffset now = DateTimeOffset.Now;
-                var startString = station.LastUpdate.InZone(timeZone).ToString("yyyy/MM/dd", CultureInfo.CurrentCulture);
+                
+                var startString = station.LastUpdate.InZone(_timeZone)
+                    .ToString("yyyy/MM/dd", CultureInfo.CurrentCulture);
                 var endString = now.ToString("yyyy/MM/dd");
 
                 string url = string.Format(urlFormat, station.ThreeLetterId, startString, endString);
 
                 FileInfo csvFile = DownloadFile(url, station.ThreeLetterId);
-                
+
                 _logger.Log(LogLevel.Information, $"Processing file: {csvFile.FullName}...");
-                
+
                 Instant newestTime = station.LastUpdate;
-                
-                
                 
                 using (var reader = new StreamReader(csvFile.FullName))
                 using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
@@ -114,47 +160,30 @@ namespace DataFetcher
 
                     foreach (var record in records)
                     {
+                        Instant? instant = GetInstantFromRecord(record);
 
-                        ParseResult<LocalDate> dateResult = datePattern.Parse(record.SampleDate);
-                        ParseResult<LocalTime> timeResult = timePattern.Parse(record.SampleTime);
-
-                        if (!dateResult.Success || !timeResult.Success)
+                        if (!instant.HasValue)
                         {
                             _logger.LogError($"Failed to parse date {record.SampleDate} {record.SampleTime}");
                             continue;
                         }
-
-                        var day = dateResult.Value;
-                        var time = timeResult.Value;
-
-                        var dateTime = day.At(time).InZoneLeniently(timeZone);
-                        var instant = dateTime.ToInstant();
-
+                        
                         if (instant <= station.LastUpdate)
                             continue;
 
                         if (instant >= newestTime)
-                            newestTime = instant;
+                            newestTime = instant.Value;
                         
-                        Sample sample = new Sample();
+                        Sample sample = MapSample(record);
 
-                        sample.SampleDate = instant;
-                        sample.SampleDepth = record.SampleDepth_m is > -200.0f ? record.SampleDepth_m.Value : -1.0f;
-                        sample.WaterTemperature = record.Temp_C is > -200.0f ? record.Temp_C.Value : -1.0f;
-                        sample.DissolvedOxygen = record.DO_mgL is > -200.0f ? record.DO_mgL.Value : -1.0f;
-                        sample.DissolvedOxygenSaturation = record.DO_sat is > -200.0f ? record.DO_sat.Value : -1.0f;
-                        sample.Salinity = record.Salinity_ppt is > -200.0f ? record.Salinity_ppt.Value : -1.0f;
-                        sample.pH = record.pH is > -200.0f ? record.pH.Value : -1.0f;
-                        sample.Turbidity = record.Turbidity_NTU is > -200.0f ? record.Turbidity_NTU.Value : -1.0f;
-                        sample.Chlorophyll = record.ChlA_ugL is > -200.0f ? record.ChlA_ugL.Value : -1.0f;
-                        sample.BlueGreenAlgae =  record.ChlA_ugL is > -200 ? record.ChlA_ugL.Value: -1.0f ;
+                        sample.SampleDate = instant.Value;
                         sample.StationId = station.Id;
 
-                        _context.Samples.Add(sample);
+                        await _context.Samples.AddAsync(sample);
                     }
 
                     station.LastUpdate = newestTime;
-                    if (_context.SaveChanges() > 0)
+                    if (await _context.SaveChangesAsync() > 0)
                         _logger.Log(LogLevel.Information, "Done");
                     else
                         _logger.Log(LogLevel.Information, $"No records added from {csvFile.FullName}");
