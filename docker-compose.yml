@@ -3,6 +3,7 @@ version: '3'
 services: 
   web:
     container_name: utb_api
+    restart: always
     build: .
     ports:
       - 8080:80
