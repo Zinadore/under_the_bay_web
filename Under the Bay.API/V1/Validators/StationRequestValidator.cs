@@ -15,8 +15,7 @@ namespace Under_the_Bay.API.V1.Validators
                 .When(x => x.IncludeMeasurements);
             
             RuleFor(x => x.EndDate)
-                .LessThanOrEqualTo(DateTimeOffset.Now)
-                .GreaterThan(x => x.StartDate)
+                .GreaterThanOrEqualTo(x => x.StartDate)
                 .When(x => x.IncludeMeasurements && x.StartDate.HasValue);
         }
     }
