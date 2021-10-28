@@ -117,7 +117,7 @@ namespace DataFetcher
             sample.DissolvedOxygen = MapProperty(record.DO_mgL, 0, 21);
             sample.DissolvedOxygenSaturation = MapProperty(record.DO_sat, 0.0f, 1);
             sample.Salinity = MapProperty(record.Salinity_ppt, 0, 32);
-            record.pH = MapProperty(record.pH, 0, 14);
+            sample.pH = MapProperty(record.pH, 0, 14);
             sample.Turbidity = MapProperty(record.Turbidity_NTU, 0, 100);
             sample.Chlorophyll = MapProperty(record.ChlA_ugL, 0, 100);
             sample.BlueGreenAlgae = MapProperty(record.BGA_RFU, 0, 1000); 
