@@ -7,7 +7,6 @@ namespace Under_the_Bay.Data
     {
         public UtbContext(DbContextOptions<UtbContext> options): base(options)
         {
-            
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

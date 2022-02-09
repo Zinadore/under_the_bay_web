@@ -24,13 +24,7 @@ namespace DataFetcher
                         connectionString = ctx.Configuration["UTB_CONNECTION_STRING"];
                     }
 
-                    services.AddDbContext<UtbContext>(opts =>
-                    {
-                        opts.UseNpgsql(connectionString, b =>
-                        {
-                            b.UseNodaTime();
-                        });
-                    });
+                    services.AddUnderTheBayContext(connectionString);
                     
                     services.AddTransient<DataFetcherApplication>();
                 })

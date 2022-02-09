@@ -8,3 +8,8 @@ folder. However due to how permissions work the folder will appear as empty
 unless you navigate to it as root. If you ever need to re-initialize the
 database you can just delete the contents of the `database` folder and the
 container will re-initialize on the next `docker-compose up`.
+
+## Creating the Database
+If the database has not been created yet, you can create it with:
+`dotnet ef --project "Under the Bay.API" database update -- --environment "Development"`
+adjusting the environment asapplicable
