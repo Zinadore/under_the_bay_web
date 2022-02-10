@@ -286,3 +286,4 @@ obj/
 .env
 .vscode
 postgres
+unity-addressables

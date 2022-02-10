@@ -26,6 +26,11 @@
     <ProjectReference Include="..\Under the Bay.Data\Under the Bay.Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="unity-addressables\android\" />
+    <Folder Include="unity-addressables\ios\" />
+  </ItemGroup>
+
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
