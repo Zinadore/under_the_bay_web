@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\UTB.Data\UTB.Data.csproj" />
+    <ProjectReference Include="..\UTB.Jobs\UTB.Jobs.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

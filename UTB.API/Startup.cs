@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using UTB.Data;
 using UTB.API.Installers;
 using UTB.Data.MappingProfiles;
+using UTB.Jobs;
 
 namespace UTB.API
 {
@@ -48,7 +49,8 @@ namespace UTB.API
             var connectionString = $"Host={Configuration["UTB_PG_HOST"]};Port={Configuration["UTB_PG_PORT"]};Database={Configuration["UTB_PG_DB"]};Username={Configuration["UTB_PG_USER"]};Password={Configuration["UTB_PG_PASS"]}";
 
             services.AddUnderTheBayContext(connectionString)
-                .AddUnderTheBayServices();
+                .AddUnderTheBayServices()
+                .AddDataFetchJobsForWeb();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
