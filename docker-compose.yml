@@ -10,7 +10,11 @@ services:
     environment: 
       ASPNETCORE_URLS: "http://+"
       ASPNETCORE_PROFILE: "Production"
-      ConnectionStrings__UTB_CONNECTION_STRING: "Host=utb_postgres;Port=5432;Database=${UTB_POSTGRES_DB};Username=${UTB_POSTGRES_USER};Password=${UTB_POSTGRES_PASSWORD}"
+      UTB_PG_HOST: utb_postgres
+      UTB_PG_PORT: ${UTB_PG_PORT}
+      UTB_PG_DB: ${UTB_PG_DB}
+      UTB_PG_USER: ${UTB_PG_USER}
+      UTB_PG_PASS: ${UTB_PG_PASS}
     depends_on: 
       - 'postgres'
       
@@ -19,11 +23,11 @@ services:
     image: postgres:latest
     restart: always
     environment: 
-      - "POSTGRES_USER=${UTB_POSTGRES_USER}"
-      - "POSTGRES_PASSWORD=${UTB_POSTGRES_PASSWORD}"
-      - "POSTGRES_DB=${UTB_POSTGRES_DB}"
+      - "POSTGRES_USER=${UTB_PG_USER}"
+      - "POSTGRES_PASSWORD=${UTB_PG_PASS}"
+      - "POSTGRES_DB=${UTB_PG_DB}"
       - "PGDATA=/var/lib/postgresql/data/pgdata"
     volumes: 
       - ./postgres/data:/var/lib/postgresql/data/pgdata
     ports:
-      - 21992:5432
+      - ${UTB_PG_PORT}:5432

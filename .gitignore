@@ -284,6 +284,7 @@ obj/
 # End of https://www.toptal.com/developers/gitignore/api/aspnetcore,dotnetcore
 
 .env
+.env.docker
 .vscode
 postgres
 unity-addressables
