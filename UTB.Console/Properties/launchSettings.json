@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "UTB.Console": {
+      "commandName": "Project",
+      "workingDirectory": "$(ProjectDir)"
+    }
+  }
+}

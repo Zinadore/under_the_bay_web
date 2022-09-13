@@ -10,7 +10,7 @@ services:
     environment: 
       ASPNETCORE_URLS: "http://+"
       ASPNETCORE_PROFILE: "Production"
-      ConnectionStrings__PGSQL_DEV: "Host=utb_postgres;Port=5432;Database=${UTB_POSTGRES_DB};Username=${UTB_POSTGRES_USER};Password=${UTB_POSTGRES_PASSWORD}"
+      ConnectionStrings__UTB_CONNECTION_STRING: "Host=utb_postgres;Port=5432;Database=${UTB_POSTGRES_DB};Username=${UTB_POSTGRES_USER};Password=${UTB_POSTGRES_PASSWORD}"
     depends_on: 
       - 'postgres'
       

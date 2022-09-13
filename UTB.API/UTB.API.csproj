@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>UTB.API</RootNamespace>
+    <UserSecretsId>UTB-36834f58-2e4c-46d8-ac42-5676309ac8a2</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="unity-addressables\**" />
+    <Content Remove="unity-addressables\**" />
+    <EmbeddedResource Remove="unity-addressables\**" />
+    <None Remove="unity-addressables\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="11.0.1" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.2.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.0.0" />
+   
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+        
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\UTB.Data\UTB.Data.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+  </PropertyGroup>
+
+</Project>
