@@ -31,6 +31,8 @@ namespace UTB.API
             // services.AddControllers()
             //     .AddFluentValidation(c => c.RegisterValidatorsFromAssemblyContaining<Startup>());
 
+            services.AddControllers();
+            
             services.AddFluentValidationAutoValidation()
             .AddFluentValidationClientsideAdapters();
 
