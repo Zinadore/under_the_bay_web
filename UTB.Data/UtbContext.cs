@@ -1,4 +1,8 @@
+using System;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using UTB.Data.Models;
 
 namespace UTB.Data
@@ -20,5 +24,16 @@ namespace UTB.Data
         public DbSet<Station> Stations { get; set; }
         
         public DbSet<Sample> Samples { get; set; }
+
+        public async Task<bool> CheckIfDatabaseReady() 
+        {
+            try {
+                return await Database.GetService<IRelationalDatabaseCreator>().ExistsAsync();
+            } 
+            catch (Npgsql.PostgresException e) {
+                e.Message.Contains("starting up");
+                return false;
+            }
+        }
     }
 }

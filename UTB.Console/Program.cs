@@ -27,7 +27,7 @@ IHostBuilder hostBuilder = Host.CreateDefaultBuilder()
 
         services.AddDataFetchJobsForWeb();
 
-        services.AddHostedService<ExampleHostingService>();
+        services.AddHostedService<DatabaseManagementService>();
     });
 
 var host = hostBuilder.Build();

@@ -12,6 +12,7 @@ using Microsoft.Extensions.Options;
 using NodaTime;
 using NodaTime.Text;
 using UTB.Contracts.DTO;
+using UTB.Data;
 using UTB.Data.Models;
 using UTB.Data.Services;
 
@@ -21,6 +22,7 @@ namespace UTB.API.Jobs
     {
         private readonly IStationsService stationsService;
         private readonly ISamplesService recordsService;
+        private readonly UtbContext context;
         private readonly ILogger<DataFetchJob> _logger;
         private readonly DataFetchOptions _options;
         
@@ -31,12 +33,14 @@ namespace UTB.API.Jobs
         public DataFetchJob(
             IStationsService stationsService,
             ISamplesService recordsService,
+            UtbContext context,
             IOptionsMonitor<DataFetchOptions> options,
             ILogger<DataFetchJob> logger)
         {
 
             this.stationsService = stationsService;
             this.recordsService = recordsService;
+            this.context = context;
             _logger = logger;
             _options = options.Get(Name);
             
@@ -46,6 +50,13 @@ namespace UTB.API.Jobs
         }
         public async Task ExecuteAsync(CancellationToken cancellationToken)
         {
+            var databaseReady = await context.CheckIfDatabaseReady();
+            if (!databaseReady){
+                _logger.LogInformation("Database is not ready yet, skipping this fetch");
+                return;
+            }
+
+
             _logger.Log(LogLevel.Information, "Running data fetch");
 
             if (_options.AddStations)

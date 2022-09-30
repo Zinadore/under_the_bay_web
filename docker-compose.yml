@@ -4,13 +4,32 @@ services:
   web:
     container_name: utb_api
     restart: always
-    build: .
+    build: 
+      context: .
+      dockerfile: API.Dockerfile
+    image: iboutsikas/underthebay-api
     ports:
       - 8080:80
     environment: 
       ASPNETCORE_URLS: "http://+"
       ASPNETCORE_PROFILE: "Production"
-      UTB_PG_HOST: utb_postgres
+      UTB_PG_HOST: ${UTB_PG_HOST}
+      UTB_PG_PORT: ${UTB_PG_PORT}
+      UTB_PG_DB: ${UTB_PG_DB}
+      UTB_PG_USER: ${UTB_PG_USER}
+      UTB_PG_PASS: ${UTB_PG_PASS}
+    depends_on: 
+      - 'postgres'
+
+  console:
+    container_name: utb_console
+    restart: always
+    build: 
+      context: .
+      dockerfile: Console.Dockerfile
+    image: iboutsikas/underthebay-console
+    environment:
+      UTB_PG_HOST: ${UTB_PG_HOST}
       UTB_PG_PORT: ${UTB_PG_PORT}
       UTB_PG_DB: ${UTB_PG_DB}
       UTB_PG_USER: ${UTB_PG_USER}
