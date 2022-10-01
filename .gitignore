@@ -285,6 +285,10 @@ obj/
 
 .env
 *.env
+!sample.env
 .vscode
 postgres
 unity-addressables
+
+*.secret.yaml
+*.secret.yml

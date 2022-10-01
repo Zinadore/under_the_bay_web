@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: utb-api
+  name: utb-api
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: utb-api
+  template:
+    metadata:
+      labels:
+        app: utb-api
+    spec:
+      containers:
+      - name: utb-api
+        image: iboutsikas/underthebay-api
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu:    "250m"
+        env: 
+          - name: UTB_PG_HOST
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: UTB_PG_HOST
+          - name: UTB_PG_PORT
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: UTB_PG_PORT
+          - name: UTB_PG_USER
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: UTB_PG_USER
+          - name: UTB_PG_PASS
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: UTB_PG_PASS
+          - name: UTB_PG_DB
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: UTB_PG_DB        
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+      - name: cloud-sql-proxy
+        image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:latest
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "2Gi"
+        args:
+          - "--structured-logs"
+          - "--port=5432"
+          - "utb-test-364117:us-central1:utb-test-db"
+          - "--credentials-file=/secrets/service_account.json"
+        volumeMounts:
+          - name: sa-secret-volume
+            mountPath: /secrets/
+            readOnly: true
+      volumes:
+        - name: sa-secret-volume
+          secret:
+            secretName: sa-secret
