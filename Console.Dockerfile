@@ -21,7 +21,4 @@ RUN ["dotnet", "publish", "./UTB.Console/UTB.Console.csproj", "-c", "Release", "
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 as runtime
 WORKDIR /app
 COPY --from=build-env /app/out .
-COPY ./wait-for-it.sh .
-RUN chmod +x ./wait-for-it.sh
-# ENTRYPOINT ["dotnet", "UTB.Console.dll"]
-ENTRYPOINT ./wait-for-it.sh -s -h $UTB_PG_HOST -p $UTB_PG_PORT -t 60 && dotnet UTB.Console.dll
+ENTRYPOINT ["dotnet", "UTB.Console.dll"]
