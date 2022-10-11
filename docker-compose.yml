@@ -9,7 +9,7 @@ services:
       dockerfile: API.Dockerfile
     image: iboutsikas/underthebay-api
     ports:
-      - 8080:80
+      - ${UTB_API_PORT}:80
     environment: 
       ASPNETCORE_URLS: "http://+"
       ASPNETCORE_PROFILE: "Production"
