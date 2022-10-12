@@ -53,6 +53,7 @@ namespace UTB.Data.Services
                 query = query.Include(x => x.Samples
                     .Where(s => s.SampleDate >= a && s.SampleDate <= b)
                     .OrderByDescending(s => s.SampleDate)
+                    .Take(100)
                 );
             }
 
