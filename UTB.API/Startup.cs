@@ -48,7 +48,14 @@ namespace UTB.API
             services.AddAutoMapper(typeof(Startup), typeof(DataLayerMappingProfile));
 
 
-            var connectionString = $"Host={Configuration["UTB_PG_HOST"]};Port={Configuration["UTB_PG_PORT"]};Database={Configuration["UTB_PG_DB"]};Username={Configuration["UTB_PG_USER"]};Password={Configuration["UTB_PG_PASS"]}";
+            var connectionString = @$"
+            Host={Configuration["UTB_PG_HOST"]};
+            Port={Configuration["UTB_PG_PORT"]};
+            Database={Configuration["UTB_PG_DB"]};
+            Username={Configuration["UTB_PG_USER"]};
+            Password={Configuration["UTB_PG_PASS"]};
+            Timeout=300;
+            CommandTimeout=300";
 
             services.AddUnderTheBayContext(connectionString)
                 .AddUnderTheBayServices();
