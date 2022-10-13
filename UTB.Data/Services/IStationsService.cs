@@ -17,6 +17,8 @@ namespace UTB.Data.Services
 
         public ValueTask AddAsync(StationDTO stationDTO, CancellationToken cancellationToken = default);
 
+        public Task UpdateStation(StationDTO stationDTO, CancellationToken cancellationToken = default);    
+
         public Task<int> SaveChanges();
     }
 }

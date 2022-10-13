@@ -50,11 +50,11 @@ namespace UTB.API.Jobs
         }
         public async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            var databaseReady = await context.CheckIfDatabaseReady();
-            if (!databaseReady){
-                _logger.LogInformation("Database is not ready yet, skipping this fetch");
-                return;
-            }
+            //var databaseReady = await context.CheckIfDatabaseReady();
+            //if (!databaseReady){
+            //    _logger.LogInformation("Database is not ready yet, skipping this fetch");
+            //    return;
+            //}
 
 
             _logger.Log(LogLevel.Information, "Running data fetch");
@@ -112,6 +112,8 @@ namespace UTB.API.Jobs
                         _logger.Log(LogLevel.Information, $"No records added from {csvFile.FullName}");
                 }
                 File.Delete(csvFile.FullName);
+                await stationsService.UpdateStation(station);
+                await stationsService.SaveChanges();
             }
         }
         private Instant? GetInstantFromRecord(SampleFromCSV record)

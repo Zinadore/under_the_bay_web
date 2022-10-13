@@ -28,22 +28,33 @@ namespace UTB.Console
 
             while (!databaseReady)
             {
-                databaseReady = await context.CheckIfDatabaseReady();
+                try
+                {
+                    databaseReady = await context.CheckIfDatabaseReady();
+                    if (databaseReady) {
+                        var migrations = await context.Database.GetPendingMigrationsAsync();
 
-                if (databaseReady) {
-                    var migrations = await context.Database.GetPendingMigrationsAsync();
-
-                    if (migrations.Count() > 0) {
-                        logger.LogInformation("Database appears ready, proceed to migrate");
-                        await context.Database.MigrateAsync();
+                        if (migrations.Count() > 0) {
+                            logger.LogInformation("Database appears ready, proceed to migrate");
+                            await context.Database.MigrateAsync();
+                            logger.LogInformation("Finished migrations");
+                        }
+                        else
+                        {
+                            logger.LogInformation("No migrations needed");
+                        }
                     }
                 }
-                else {
+                catch (Exception e)
+                {
+                    logger.LogError(e.Message);
                     logger.LogInformation($"Database is not ready, waiting {seconds} seconds...");
                     await Task.Delay(seconds * 1000);
                     seconds *= 2;
                 }
             }
+
+            logger.LogInformation("Database service started!");
         }
 
         private void OnStarted()

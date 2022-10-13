@@ -72,5 +72,16 @@ namespace UTB.Data.Services
         {
             return await _context.SaveChangesAsync();
         }
+
+        public async Task UpdateStation(StationDTO stationDTO, CancellationToken cancellationToken = default)
+        {
+            var station = await _context.Stations.Where(s => s.Id == stationDTO.Id).FirstOrDefaultAsync();
+
+            if (station == null)
+                return;
+
+            station.LastUpdate = stationDTO.LastUpdate;
+            _context.Update(station);
+        }
     }
 }
