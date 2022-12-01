@@ -3,10 +3,11 @@ kind: Service
 apiVersion: v1
 metadata:
   name: api-lb
+  annotations:
+    cloud.google.com/backend-config: '{"default": "utb-backendconfig"}'
 spec:
   selector:
     app: utb-api
-  type: LoadBalancer
   ports:
     - name: utb-api-port
       port: 8080

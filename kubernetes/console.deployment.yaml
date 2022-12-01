@@ -58,7 +58,7 @@ spec:
         args:
           - "--structured-logs"
           - "--port=5432"
-          - "utb-test-364117:us-central1:utb-test-db"
+          - "underbay:us-central1:utb-db-prod"
           - "--credentials-file=/secrets/service_account.json"
         volumeMounts:
           - name: sa-secret-volume
