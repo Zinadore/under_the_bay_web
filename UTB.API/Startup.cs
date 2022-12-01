@@ -55,10 +55,13 @@ namespace UTB.API
             Username={Configuration["UTB_PG_USER"]};
             Password={Configuration["UTB_PG_PASS"]};
             Timeout=300;
+            Keepalive=300;
             CommandTimeout=300";
 
             services.AddUnderTheBayContext(connectionString)
                 .AddUnderTheBayServices();
+
+            services.AddHealthChecks();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -19,8 +19,16 @@ IHostBuilder hostBuilder = Host.CreateDefaultBuilder()
     {
         services.AddAutoMapper(typeof(DataLayerMappingProfile));
 
-        var configuration = context.Configuration;
-        var connectionString = $"Host={configuration["UTB_PG_HOST"]};Port={configuration["UTB_PG_PORT"]};Database={configuration["UTB_PG_DB"]};Username={configuration["UTB_PG_USER"]};Password={configuration["UTB_PG_PASS"]}";
+        var Configuration = context.Configuration;
+        var connectionString = @$"
+            Host={Configuration["UTB_PG_HOST"]};
+            Port={Configuration["UTB_PG_PORT"]};
+            Database={Configuration["UTB_PG_DB"]};
+            Username={Configuration["UTB_PG_USER"]};
+            Password={Configuration["UTB_PG_PASS"]};
+            Timeout=300;
+            Keepalive=300;
+            CommandTimeout=300";
 
         services.AddUnderTheBayContext(connectionString)
         .AddUnderTheBayServices();
