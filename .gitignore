@@ -292,3 +292,9 @@ unity-addressables
 
 *.secret.yaml
 *.secret.yml
+
+# Random folder that appears from somewhere
+./JSON/
+
+# sensitive .json files
+production_sa.json
